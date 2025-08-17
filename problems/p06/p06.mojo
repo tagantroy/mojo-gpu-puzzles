@@ -18,7 +18,6 @@ fn add_10_blocks(
     i = block_dim.x * block_idx.x + thread_idx.x
     if i < size:
         output[i] = a[i]+10
-    # FILL ME IN (roughly 2 lines)
 
 
 # ANCHOR_END: add_10_blocks
