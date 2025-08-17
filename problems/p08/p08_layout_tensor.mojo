@@ -31,8 +31,8 @@ fn add_10_shared_layout_tensor[
         shared[local_i] = a[global_i]
 
     barrier()
-
-    # FILL ME IN (roughly 2 lines)
+    if global_i < size:
+        output[global_i] = shared[local_i] + 10
 
 
 # ANCHOR_END: add_10_shared_layout_tensor
