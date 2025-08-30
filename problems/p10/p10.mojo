@@ -24,9 +24,11 @@ fn shared_memory_race(
 
     shared_sum = tb[dtype]().row_major[1]().shared().alloc()
 
-    if row < size and col < size:
-        shared_sum[0] += a[row, col]
-
+    if row == 0 and col == 0:
+        local_sum = Scalar[dtype](0.0)
+        for r in range(SIZE):
+            for c in range(SIZE):
+                shared_sum[0] += a[r, c]
     barrier()
 
     if row < size and col < size:
