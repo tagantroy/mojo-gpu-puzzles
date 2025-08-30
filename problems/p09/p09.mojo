@@ -37,7 +37,7 @@ fn process_sliding_window(
     window_sum = Scalar[dtype](0.0)
 
     # Sum elements in sliding window: [i-1, i, i+1]
-    for offset in range(ITER+1):
+    for offset in range(ITER + 1):
         idx = thread_id + offset - 1
         if 0 <= idx < SIZE:
             value = rebind[Scalar[dtype]](input[idx])

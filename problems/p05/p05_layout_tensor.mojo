@@ -26,7 +26,7 @@ fn broadcast_add[
     row = thread_idx.y
     col = thread_idx.x
     if row < size and col < size:
-        output[row, col] = a[0,row] + b[col,0]
+        output[row, col] = a[0, row] + b[col, 0]
 
 
 # ANCHOR_END: broadcast_add_layout_tensor
