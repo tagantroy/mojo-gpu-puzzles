@@ -25,7 +25,24 @@ fn dot_product[
     size: Int,
 ):
     # FILL ME IN (roughly 13 lines)
-    ...
+    local_i = thread_idx.x
+    global_i = block_dim.x * block_idx.x + thread_idx.x
+
+    shared = tb[dtype]().row_major[TPB]().shared().alloc()
+    if local_i < size:
+        shared[local_i] = a[global_i] * b[global_i]
+
+    barrier()
+
+    stride = TPB // 2
+    while stride > 0:
+        if local_i < stride:
+            shared[local_i] += shared[local_i + stride]
+        barrier()
+        stride //= 2
+
+    if local_i == 0:
+        output[0] = shared[0]
 
 
 # ANCHOR_END: dot_product_layout_tensor
