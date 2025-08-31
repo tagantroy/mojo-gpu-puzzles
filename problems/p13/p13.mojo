@@ -2,7 +2,7 @@ from gpu import thread_idx, block_idx, block_dim, barrier
 from gpu.host import DeviceContext
 from layout import Layout, LayoutTensor
 from layout.tensor_builder import LayoutTensorBuild as tb
-from sys import sizeof, argv
+from sys import argv
 from testing import assert_equal
 
 # ANCHOR: conv_1d_simple
@@ -27,6 +27,27 @@ fn conv_1d_simple[
     global_i = block_dim.x * block_idx.x + thread_idx.x
     local_i = thread_idx.x
     # FILL ME IN (roughly 14 lines)
+    shared_a = tb[dtype]().row_major[SIZE]().shared().alloc()
+    shared_b = tb[dtype]().row_major[CONV]().shared().alloc()
+
+    if local_i < SIZE:
+        shared_a[local_i] = a[global_i]
+
+    if local_i < CONV:
+        shared_b[local_i] = b[global_i]
+    barrier()
+
+    if local_i < SIZE:
+        var tmp: output.element_type = 0
+
+        @parameter
+        for j in range(CONV):
+            idx = local_i + j
+            if idx < SIZE:
+                tmp += rebind[Scalar[dtype]](shared_a[idx]) * rebind[
+                    Scalar[dtype]
+                ](shared_b[j])
+        output[local_i] = tmp
 
 
 # ANCHOR_END: conv_1d_simple
