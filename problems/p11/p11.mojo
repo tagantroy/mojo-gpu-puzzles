@@ -33,10 +33,13 @@ fn pooling(
     barrier()
 
     if local_i < size:
+        local_tmp = Scalar[dtype](0.0)
         for i in range(3):
             idx = local_i - i
             if idx >= 0:
-                output[global_i] += shared[idx]
+                local_tmp += shared[idx]
+
+        output[global_i] += local_tmp
 
 
 # ANCHOR_END: pooling
