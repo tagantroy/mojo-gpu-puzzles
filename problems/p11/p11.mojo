@@ -2,7 +2,8 @@ from memory import UnsafePointer, stack_allocation
 from gpu import thread_idx, block_idx, block_dim, barrier
 from gpu.host import DeviceContext
 from gpu.memory import AddressSpace
-from sys import sizeof
+
+# from sys import sizeof
 from testing import assert_equal
 
 # ANCHOR: pooling
@@ -26,6 +27,16 @@ fn pooling(
     global_i = block_dim.x * block_idx.x + thread_idx.x
     local_i = thread_idx.x
     # FILL ME IN (roughly 10 lines)
+
+    if local_i < size:
+        shared[local_i] = a[global_i]
+    barrier()
+
+    if local_i < size:
+        for i in range(3):
+            idx = local_i - i
+            if idx >= 0:
+                output[global_i] += shared[idx]
 
 
 # ANCHOR_END: pooling
