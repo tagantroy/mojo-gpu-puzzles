@@ -2,7 +2,7 @@ from gpu import thread_idx, block_idx, block_dim, barrier
 from gpu.host import DeviceContext
 from layout import Layout, LayoutTensor
 from layout.tensor_builder import LayoutTensorBuild as tb
-from sys import sizeof, argv
+from sys import argv
 from math import log2
 from testing import assert_equal
 
@@ -24,7 +24,28 @@ fn prefix_sum_simple[
 ):
     global_i = block_dim.x * block_idx.x + thread_idx.x
     local_i = thread_idx.x
-    # FILL ME IN (roughly 18 lines)
+    shared = tb[dtype]().row_major[SIZE]().shared().alloc()
+
+    if local_i < SIZE:
+        shared[local_i] = a[local_i]
+
+    barrier()
+
+    offset = 1
+    # while offset < SIZE:
+    for i in range(Int(log2(Scalar[dtype](TPB)))):
+        var tmp: output.element_type = 0
+        if local_i >= offset and local_i < SIZE:
+            tmp = shared[local_i - offset]
+        barrier()
+        if local_i >= offset and local_i < SIZE:
+            shared[local_i] += tmp
+
+        barrier()
+        offset *= 2
+
+    if local_i < SIZE:
+        output[local_i] = shared[local_i]
 
 
 # ANCHOR_END: prefix_sum_simple
